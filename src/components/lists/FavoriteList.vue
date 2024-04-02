@@ -3,6 +3,8 @@
     <v-icon class="mr-2" color="warning">mdi-star</v-icon>
     My favorite songs
   </div>
+
+  <!--FAVORITE LIST-->
   <template v-if="favoriteStore.favoriteList.length > 0">
 
     <v-list density="compact">
@@ -34,32 +36,24 @@
       </template>
     </v-list>
   </template>
+
+  <!--EMPTY FAVORITE-->
   <template v-else>
     <div class="text-center mt-8 text-grey">You don't have any favorites yet</div>
   </template>
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import {useFavoriteListStore} from "@/stores/favorite";
 import {useRouter} from "vue-router";
 
-export default {
+const favoriteStore = useFavoriteListStore()
+const router = useRouter()
 
-  setup() {
-    const favoriteStore = useFavoriteListStore()
-    const router = useRouter()
-
-    const removeFromFavorite = (favoriteListIdSong: number) => {
-      favoriteStore.removeFavorite(favoriteListIdSong);
-    };
-    const getSongs = (idAlbum) => {
-      router.push({name: 'album', params: {albumId: idAlbum}})
-    }
-    return {
-      favoriteStore,
-      getSongs,
-      removeFromFavorite
-    }
-  }
+const removeFromFavorite = (favoriteListIdSong: number) => {
+  favoriteStore.removeFavorite(favoriteListIdSong);
+};
+const getSongs = (idAlbum) => {
+  router.push({name: 'album', params: {albumId: idAlbum}})
 }
 
 </script>

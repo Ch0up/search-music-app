@@ -2,6 +2,7 @@
   <div v-if="albumsStore.albums.length > 0">
     <div class="text-h5 text-md-h4 font-weight-bold text-grey my-4">Albums</div>
 
+    <!--ALBUM CARD INFO-->
     <div class="albums-container">
       <v-card
           v-for="album in albumsStore.albums.slice(0, 20)"
@@ -29,24 +30,16 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import {useAlbumsStore} from "@/stores/albums";
 import {useRouter} from "vue-router";
 
-export default {
-  setup() {
-    const albumsStore = useAlbumsStore()
-    const router = useRouter()
-    const getSongs = (idAlbum) => {
-      router.push({name: 'album', params: {albumId: idAlbum}})
-    }
-    return {
-      getSongs,
-      albumsStore,
-    }
-  }
-}
+const albumsStore = useAlbumsStore()
+const router = useRouter()
 
+const getSongs = (idAlbum) => {
+  router.push({name: 'album', params: {albumId: idAlbum}})
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,7 @@
 <template>
   <div>
+
+    <!--SEARCH-->
     <v-responsive
         class="mx-auto py-2 mt-4"
         max-width="500"
@@ -22,47 +24,38 @@
       ></v-text-field>
     </v-responsive>
 
-    <BestSongsList :best-songs="bestSongs"/>
+    <!--BEST SONG CARD-->
+    <BestSongsCard :best-songs="bestSongs"/>
   </div>
 
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {computed, ref} from 'vue'
 import {useArtistsStore} from "@/stores/artists";
 import {useAlbumsStore} from "@/stores/albums";
 import {useSongsStore} from "@/stores/songs";
-import BestSongsList from "@/components/BestSongsCard.vue";
-import router from "@/router";
+import BestSongsCard from "@/components/cards/BestSongsCard.vue";
+import {useRouter} from "vue-router";
 
-export default {
-  components: {BestSongsList},
-  setup() {
-    const artistsStore = useArtistsStore()
-    const albumsStore = useAlbumsStore()
-    const songsStore = useSongsStore()
-    const artistValue = ref('');
+const router = useRouter()
 
-    const searchArtists = () => {
-      artistsStore.searchArtists(artistValue.value.toLowerCase()).then((artist => {
-        albumsStore.getAlbums(artist.idArtist)
-        router.push({name: 'artist', params: {artistName: artist.strArtist.toLowerCase()}})
-      }))
-    }
-    const bestSongs = computed(() => {
-      const sortedSongs = songsStore.ratedSongs.slice().sort((a, b) => b.rating - a.rating);
+const artistsStore = useArtistsStore()
+const albumsStore = useAlbumsStore()
+const songsStore = useSongsStore()
+const artistValue = ref('');
 
-      return sortedSongs.slice(0, 10);
-    });
-
-    return {
-      searchArtists,
-      artistValue,
-      artistsStore,
-      bestSongs,
-      albumsStore,
-      songsStore
-    }
-  }
+const searchArtists = () => {
+  artistsStore.searchArtists(artistValue.value.toLowerCase()).then((artist => {
+    albumsStore.getAlbums(artist.idArtist)
+    router.push({name: 'artist', params: {artistName: artist.strArtist.toLowerCase()}})
+  }))
 }
+
+const bestSongs = computed(() => {
+  const sortedSongs = songsStore.ratedSongs.slice().sort((a, b) => b.rating - a.rating);
+
+  return sortedSongs.slice(0, 10);
+});
+
 </script>

@@ -3,6 +3,5 @@
 </template>
 
 <script setup lang="ts">
-
-import SongsList from "@/components/SongsList.vue";
+import SongsList from '@/components/lists/SongsList.vue'
 </script>

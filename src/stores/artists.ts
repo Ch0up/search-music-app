@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import config from "../../config";
+import type {RouteParamValue, RouteParamValueRaw} from "vue-router";
 
 const url = config.AGILIUM_BASE_URL + 'search.php?s='
 export const useArtistsStore = defineStore('artists', {
@@ -10,7 +11,7 @@ export const useArtistsStore = defineStore('artists', {
   }),
   getters: {},
   actions: {
-    async searchArtists(artistValue) {
+    async searchArtists(artistValue: string | RouteParamValue[]) {
       this.artists = []
       this.isLoading = true
       try {

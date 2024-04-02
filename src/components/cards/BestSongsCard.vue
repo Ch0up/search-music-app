@@ -3,12 +3,12 @@
     <v-icon class="mr-2" color="error">mdi-heart</v-icon>
     My best songs
   </div>
-  <template v-if="bestSongs.length > 0">
 
-
+  <!--BEST SONGS CARDS-->
+  <template v-if="props.bestSongs.length > 0">
     <div class="best-songs-container">
       <v-card
-          v-for="song in bestSongs.slice(0, 6)"
+          v-for="song in props.bestSongs.slice(0, 6)"
           :key="song.idTrack"
           class="ma-2 rounded-lg"
           height="270"
@@ -33,33 +33,29 @@
       </v-card>
     </div>
   </template>
+
+  <!--EMPTY BEST SONGS-->
   <template v-else>
     <div class="text-center mt-8 text-grey">You haven't rated any songs yet</div>
   </template>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { defineProps } from 'vue'
+
 import {useRouter} from "vue-router";
+const props = defineProps(['bestSongs'])
 
-export default {
-  props: ['bestSongs'],
-  setup() {
-    const router = useRouter()
+const router = useRouter()
 
-    const getSongs = (idAlbum) => {
-      router.push({name: 'album', params: {albumId: idAlbum}})
-    }
-    return {
-      getSongs
-    }
-  }
+const getSongs = (idAlbum) => {
+  router.push({name: 'album', params: {albumId: idAlbum}})
 }
 </script>
 
 <style scoped>
 .best-songs-container {
   display: grid;
-  gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-items: center;
 }

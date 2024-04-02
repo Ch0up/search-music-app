@@ -1,5 +1,7 @@
 <template>
   <template v-if="!albumsStore.isLoading">
+
+    <!--ARTIST CARD INFO-->
     <div v-if="artistsStore.artists.idArtist">
       <div class="text-h5 text-md-h4 font-weight-bold text-grey my-4">{{ artistsStore.artists.strArtist }}</div>
       <div class="d-md-flex">
@@ -38,44 +40,39 @@
         </v-col>
       </div>
     </div>
+
+    <!--ALBUM CARD INFO-->
     <div v-if="albumsStore.albums.length > 0">
       <AlbumsCard />
     </div>
   </template>
+
+  <!--LOADER-->
   <template v-else>
     <LoadingSpinner :overlay="albumsStore.isLoading"/>
   </template>
 
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import {onMounted} from "vue";
 import {useArtistsStore} from "@/stores/artists";
 import {useAlbumsStore} from "@/stores/albums";
 import {useRouter} from "vue-router";
-import AlbumsCard from "@/components/AlbumsCard.vue";
-import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import AlbumsCard from '@/components/cards/AlbumsCard.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
-export default {
-  components: {LoadingSpinner, AlbumsCard},
-  setup() {
-    const router = useRouter()
-    const artistsStore = useArtistsStore()
-    const albumsStore = useAlbumsStore()
+const artistsStore = useArtistsStore()
+const albumsStore = useAlbumsStore()
+const router = useRouter()
 
-    onMounted(() => {
-      if (router.currentRoute.value) {
-        const artistName = router.currentRoute.value.params.artistName
-        artistsStore.searchArtists(artistName).then((artist => {
-          albumsStore.getAlbums(artist.idArtist)
-        }))
-      }
-    });
-
-    return {
-      artistsStore,
-      albumsStore,
-    }
+onMounted(() => {
+  if (router.currentRoute.value) {
+    const artistName = router.currentRoute.value.params.artistName
+    artistsStore.searchArtists(artistName).then((artist => {
+      albumsStore.getAlbums(artist.idArtist)
+    }))
   }
-}
+});
+
 
 </script>

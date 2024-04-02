@@ -11,7 +11,7 @@ export const useAlbumsStore = defineStore('albums', {
     }),
     getters: {},
     actions: {
-        async getAlbums(idArtist) {
+        async getAlbums(idArtist: string) {
             this.albums = []
             this.isLoading = true
             try {

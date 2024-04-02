@@ -1,7 +1,7 @@
 <template>
-  <ArtistsList/>
+  <ArtistsCard/>
 </template>
 
 <script setup lang="ts">
-import ArtistsList from "@/components/ArtistsCard.vue";
+import ArtistsCard from '@/components/cards/ArtistsCard.vue'
 </script>

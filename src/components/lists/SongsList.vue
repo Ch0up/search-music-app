@@ -2,10 +2,11 @@
   <template v-if="!songsStore.isLoading">
     <template v-if="songsStore.songs.length > 0">
       <div class="text-h5 text-md-h4 font-weight-bold text-grey my-4 px-4">
-        Album ({{ songsStore.songs[0].strAlbum }})
+        Album ({{ songsStore.songs[0].strAlbum }}) - {{ songsStore.songs[0].strArtist }}
       </div>
     </template>
 
+    <!--LIST OF SONGS-->
     <template v-if="songsStore.songs.length > 0">
       <v-list density="compact">
         <template v-for="song in songsStore.songs"
@@ -42,24 +43,15 @@
               </v-avatar>
             </template>
             <template v-slot:append>
-              <v-tooltip
-                  text="Add to favorite"
-                  location="bottom"
+              <v-btn
+                  color="grey-lighten-1"
+                  icon="mdi-star"
+                  variant="text"
+                  @click.stop="isSongInMyFavoriteList(song.idTrack) ? removeFromFavorite(song.idTrack) : addToFavorite(song)"
               >
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                      v-bind="props"
-                      color="grey-lighten-1"
-                      icon="mdi-star"
-                      variant="text"
-                      @click.stop="isSongInMyFavoriteList(song.idTrack) ? removeFromFavorite(song.idTrack) : addToFavorite(song)"
-                  >
-                    <v-icon v-if="isSongInMyFavoriteList(song.idTrack)" color="warning">mdi-star</v-icon>
-                    <v-icon v-else>mdi-star-outline</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-
+                <v-icon v-if="isSongInMyFavoriteList(song.idTrack)" color="warning">mdi-star</v-icon>
+                <v-icon v-else>mdi-star-outline</v-icon>
+              </v-btn>
             </template>
           </v-list-item>
 
@@ -67,10 +59,13 @@
       </v-list>
     </template>
   </template>
+
+  <!--LOADER-->
   <template v-else>
     <LoadingSpinner :overlay="songsStore.isLoading"/>
   </template>
 
+  <!--DIALOG INFO SONGS-->
   <v-dialog
       v-model="trackDetailDialog"
       width="600"
@@ -115,97 +110,85 @@
   </v-dialog>
 </template>
 
-<script lang="ts">
-import {onBeforeMount, ref} from "vue";
+<script setup lang="ts">
+import {onMounted, ref} from "vue";
 import {useSongsStore} from "@/stores/songs";
 import {useFavoriteListStore} from "@/stores/favorite";
 import {useRouter} from "vue-router";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
-export default {
-  components: {LoadingSpinner},
-  setup() {
-    const songsStore = useSongsStore()
-    const favoriteStore = useFavoriteListStore()
-    const trackDetailDialog = ref(false)
-    const selectedSongDetails = ref({});
-    const router = useRouter()
+const songsStore = useSongsStore()
 
-    const openTrackDetailDialog = (song) => {
-      selectedSongDetails.value = song;
-      if (!selectedSongDetails.value.rating) {
-        selectedSongDetails.value.rating = getRatingForSong(song.idTrack)
-      }
-      if (!selectedSongDetails.value.comment) {
-        selectedSongDetails.value.comment = getCommentedForSong(song.idTrack)
-      }
-      trackDetailDialog.value = true;
-    };
-    const addToFavorite = (song) => {
-      favoriteStore.addFavorite(song)
-    };
-    const removeFromFavorite = (favoriteListIdSong: number) => {
-      favoriteStore.removeFavorite(favoriteListIdSong);
-    };
-    const updateRating = (rating) => {
-      if (selectedSongDetails.value) {
-        selectedSongDetails.value.rating = rating;
-        songsStore.updateRating(selectedSongDetails.value.idTrack, rating);
-      }
-    };
-    const updateComment = (comment) => {
-      if (selectedSongDetails.value) {
-        selectedSongDetails.value.comment = comment;
-        songsStore.updateComment(selectedSongDetails.value.idTrack, comment);
-      }
-    };
-    const getRatingForSong = (songId) => {
-      const ratedSong = songsStore.ratedSongs.find(rated => rated.idTrack === songId);
-      return ratedSong ? ratedSong.rating : 0;
-    };
-    const getCommentedForSong = (songId) => {
-      const commentedSong = songsStore.commentedSongs.find(commented => commented.idTrack === songId);
-      return commentedSong ? commentedSong.comment : '';
-    };
-    const isSongInMyFavoriteList = (songId) => {
-      return favoriteStore.favoriteList.some(favorite => favorite.idTrack === songId);
-    }
+// ADD OR REMOVE FAVORITE
+const favoriteStore = useFavoriteListStore()
+const addToFavorite = (song) => {
+  favoriteStore.addFavorite(song)
+};
 
-    const convertDuration = (time) => {
-      const durationInSeconds = time / 1000;
+const removeFromFavorite = (favoriteListIdSong: number) => {
+  favoriteStore.removeFavorite(favoriteListIdSong);
+};
 
-      const minutes = Math.floor(durationInSeconds / 60);
-      const seconds = Math.floor(durationInSeconds % 60);
+// DIALOG
+const trackDetailDialog = ref(false)
+const selectedSongDetails = ref({});
+const openTrackDetailDialog = (song) => {
+  selectedSongDetails.value = song;
+  if (!selectedSongDetails.value.rating) {
+    selectedSongDetails.value.rating = getRatingForSong(song.idTrack)
+  }
+  if (!selectedSongDetails.value.comment) {
+    selectedSongDetails.value.comment = getCommentedForSong(song.idTrack)
+  }
+  trackDetailDialog.value = true;
+};
 
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-      const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-
-      return `${formattedMinutes}:${formattedSeconds}`;
-    }
-
-    onBeforeMount(() => {
-      if (router.currentRoute.value) {
-        const idAlbum = router.currentRoute.value.params.albumId
-        songsStore.getSongs({idAlbum: idAlbum})
-      }
-    });
-    return {
-      openTrackDetailDialog,
-      addToFavorite,
-      removeFromFavorite,
-      updateRating,
-      updateComment,
-
-      convertDuration,
-      isSongInMyFavoriteList,
-      getRatingForSong,
-      getCommentedForSong,
-      trackDetailDialog,
-      selectedSongDetails,
-
-      favoriteStore,
-      songsStore,
-    }
+const updateRating = (rating) => {
+  if (selectedSongDetails.value) {
+    selectedSongDetails.value.rating = rating;
+    songsStore.updateRating(selectedSongDetails.value.idTrack, rating);
   }
 }
+
+const updateComment = (comment) => {
+  if (selectedSongDetails.value) {
+    selectedSongDetails.value.comment = comment;
+    songsStore.updateComment(selectedSongDetails.value.idTrack, comment);
+  }
+}
+
+const getRatingForSong = (songId) => {
+  const ratedSong = songsStore.ratedSongs.find(rated => rated.idTrack === songId);
+  return ratedSong ? ratedSong.rating : 0;
+}
+
+const getCommentedForSong = (songId) => {
+  const commentedSong = songsStore.commentedSongs.find(commented => commented.idTrack === songId);
+  return commentedSong ? commentedSong.comment : '';
+}
+
+const isSongInMyFavoriteList = (songId) => {
+  return favoriteStore.favoriteList.some(favorite => favorite.idTrack === songId);
+}
+
+const convertDuration = (time) => {
+  const durationInSeconds = time / 1000;
+
+  const minutes = Math.floor(durationInSeconds / 60);
+  const seconds = Math.floor(durationInSeconds % 60);
+
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+  return `${formattedMinutes}:${formattedSeconds}`;
+}
+
+const router = useRouter()
+
+onMounted(() => {
+  if (router.currentRoute.value) {
+    const idAlbum = router.currentRoute.value.params.albumId
+    songsStore.getSongs({idAlbum: idAlbum})
+  }
+});
 </script>

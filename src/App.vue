@@ -1,18 +1,19 @@
 <template>
-  <v-app>
-    <main>
-      <NavBar/>
+  <v-layout>
+    <NavBar/>
 
+    <v-main>
       <v-container class="main-container">
         <RouterView/>
       </v-container>
-    </main>
-  </v-app>
+    </v-main>
+
+  </v-layout>
 </template>
 
 <script setup lang="ts">
 import {RouterView} from 'vue-router'
-import NavBar from "@/components/NavBar.vue";
+import NavBar from "@/components/layout/NavBar.vue";
 </script>
 
 <style scoped>

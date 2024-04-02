@@ -1,6 +1,6 @@
 <template>
   <v-overlay
-      :model-value="overlay"
+      :model-value="props.overlay"
       class="align-center justify-center"
   >
     <v-progress-circular
@@ -10,8 +10,7 @@
     ></v-progress-circular>
   </v-overlay>
 </template>
-<script>
-export default {
-  props: ['overlay'],
-}
+<script setup>
+import { defineProps } from 'vue'
+const props = defineProps(['overlay'])
 </script>
